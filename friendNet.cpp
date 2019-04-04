@@ -88,7 +88,7 @@ int main(){
     for (int i = 0; i < adjList.size(); i++){
         cout << "index " << i << " -> ";
 	for (int j = 0; j < adjList[i].size(); j++){
-	    cout << adjList[i][j];
+	    cout << adjList[i][j] << " ";
 	}
 	cout << endl;
     }
@@ -98,7 +98,7 @@ int main(){
     for (int i = 0; i < valuesBetween.size(); i++){
         cout << "index " << i << " -> ";
 	for (int j = 0; j < valuesBetween[i].size(); j++){
-	    cout << valuesBetween[i][j];
+	    cout << valuesBetween[i][j] << " " ;
 	}
 	cout << endl;
     }
