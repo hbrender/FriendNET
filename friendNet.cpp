@@ -1,3 +1,12 @@
+// Hanna Brender and Reid Whitson
+// CPSC 450: 01
+// FriendNET: Deliverable 1
+
+// Best friend chain algorithm: Prim's Algorithm
+// Killer Features:
+//      1. Fake friend feature: Remove friends who rate you 4 points less than you rate them
+//      2. Delete person who is the least popular among other users
+
 #include <iostream>
 #include <map>
 #include <string>
@@ -65,7 +74,6 @@ int main(){
         //now intVal holds the distance between them
         valuesBetween[indexFirstName].push_back(intVal);
     }
-    
     
     // Names to index
     cout << "\n\nCurrent Map" << endl << "------------------------------" << endl;
@@ -151,7 +159,7 @@ void prompt(map<string, int> nameToIndex, vector<vector<int>> adjList, vector<ve
             secondIndex = nameToIndex[second];
             
             int length = adjList[firstIndex].size(); // total number of connection for first user
-            // go through each of first's connections and second is one of their connections
+            // go through each of first's connections and check if second is one of their connections
             for (int i = 0; i < length; i++) {
                 // second is connected to first
                 if (adjList[firstIndex][i] == secondIndex) {
