@@ -15,7 +15,7 @@
 
 using namespace std;
 
-void prompt(map<string, int>, vector<vector<int>>, vector<vector<int>>);
+void prompt(map<string, int>, map<int, string>, vector<vector<int>>, vector<vector<int>>);
 
 int main(){
     ifstream dataFile ("data.txt");
@@ -23,6 +23,7 @@ int main(){
     vector<vector<int>> adjList;
     vector<vector<int>> valuesBetween; // a parallel list to the adjList
     map<string, int> nameToIndex; // map to convert from user's name and their index
+    map<int, string> indexToName; // map to convert from user's index to their name
     
     string aLine;
     
@@ -40,6 +41,7 @@ int main(){
                 if(nameToIndex.find(aLine) == nameToIndex.end()){
                     //it isnt in the map yet
                     nameToIndex[aLine] = x;
+                    indexToName[x] = aLine;
                     indexFirstName = x;
                     x++;
                     adjList.resize(x);
@@ -53,6 +55,7 @@ int main(){
                 if(nameToIndex.find(aLine) == nameToIndex.end()){
                     //it isnt in the map yet
                     nameToIndex[aLine] = x;
+                    indexToName[x] = aLine;
                     indexSecondName = x;
                     x++;
                     adjList.resize(x);
@@ -76,13 +79,19 @@ int main(){
     }
     
     // Names to index
-    cout << "\n\nCurrent Map" << endl << "------------------------------" << endl;
+    cout << "\n\nName to Index Map" << endl << "------------------------------" << endl;
     for(auto it: nameToIndex){
         cout << "name: " << it.first << "\tindex->" <<  it.second << endl;
     }
     
+    // Names to index
+    cout << "\n\nIndex to Name Map" << endl << "------------------------------" << endl;
+    for(auto it: indexToName){
+        cout << "name: " << it.first << "\tindex->" <<  it.second << endl;
+    }
+    
     //current adjListaency list
-    cout << "\n\nCurrent adjListacency list " << endl << "----------------------------" << endl;
+    cout << "\n\nCurrent adjacency list " << endl << "----------------------------" << endl;
     for (int i = 0; i < adjList.size(); i++){
         cout << "index " << i << " -> ";
         for (int j = 0; j < adjList[i].size(); j++){
@@ -100,17 +109,18 @@ int main(){
         }
         cout << endl;
     }
-    prompt(nameToIndex, adjList, valuesBetween);
+    prompt(nameToIndex, indexToName, adjList, valuesBetween);
     
     return 0;
 }
 
-void prompt(map<string, int> nameToIndex, vector<vector<int>> adjList, vector<vector<int>> valuesBetween) {
+void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<vector<int>> adjList, vector<vector<int>> valuesBetween) {
     int option;
     cout << "\nWhat do you want to do?\n" <<
             "1) Check if user exists\n" <<
             "2) Check connection between users\n"
-            "3) Quit\n";
+            "3) Find fake friends\n"
+            "4) Quit\n";
     cin >> option;
     
     if (option == 1) {
@@ -123,7 +133,7 @@ void prompt(map<string, int> nameToIndex, vector<vector<int>> adjList, vector<ve
         } else {
             cout << user << " does not exist\n";
         }
-        prompt(nameToIndex, adjList, valuesBetween);
+        prompt(nameToIndex, indexToName, adjList, valuesBetween);
     } else if (option == 2) {
         string users;
         cout << "What users (seperated by spaces)? ";
@@ -149,10 +159,10 @@ void prompt(map<string, int> nameToIndex, vector<vector<int>> adjList, vector<ve
         // check if users exist
         if (nameToIndex.find(first) == nameToIndex.end()) {
             cout << "Error: " << first << " does not exist\n";
-            prompt(nameToIndex, adjList, valuesBetween);
+            prompt(nameToIndex, indexToName, adjList, valuesBetween);
         } else if (nameToIndex.find(second) == nameToIndex.end()) {
             cout << "Error: " << second << " does not exist\n";
-            prompt(nameToIndex, adjList, valuesBetween);
+            prompt(nameToIndex, indexToName, adjList, valuesBetween);
         } else {
             // get user index from map
             firstIndex = nameToIndex[first];
@@ -166,17 +176,53 @@ void prompt(map<string, int> nameToIndex, vector<vector<int>> adjList, vector<ve
                     // value between first and second
                     int weight = valuesBetween[firstIndex][i];
                     cout << "The connection from " << first << " to " << second << " has weight " << weight << "\n";
-                    prompt(nameToIndex, adjList, valuesBetween);
+                    prompt(nameToIndex, indexToName, adjList, valuesBetween);
                 }
             }
             // no connection found
             cout << "No connection between " << first << " and " << second << "\n";
-            prompt(nameToIndex, adjList, valuesBetween);
+            prompt(nameToIndex, indexToName, adjList, valuesBetween);
         }
     } else if (option == 3) {
+        string user_name;
+        cout << "What is your name? ";
+        cin >> user_name;
+        
+        // check if user exist
+        if (nameToIndex.find(user_name) == nameToIndex.end()) {
+            cout << "Error: " << user_name << " does not exist\n";
+            prompt(nameToIndex, indexToName, adjList, valuesBetween);
+        } else {
+            // get user index from map
+            int user_index = nameToIndex[user_name];
+            
+            int count = 0;
+            // check if each of user's friends is a fake friend or not
+            for (int i = 0; i < adjList[user_index].size(); i++) {
+                int friend_index = adjList[user_index][i];
+                int user_rating = valuesBetween[user_index][i];
+                // check friend's rating of user
+                for (int j = 0; j < adjList[friend_index].size(); j++) {
+                    if (adjList[friend_index][j] == user_index) {
+                        int friend_rating = valuesBetween[friend_index][j];
+                        string friend_name = indexToName[friend_index];
+                        // display fake friend
+                        if ((user_rating - friend_rating) >= 4) {
+                            count++;
+                            cout << friend_name << " is a fake friend\n";
+                        }
+                    }
+                }
+            }
+            if (count == 0) {
+                cout << "No fake friends\n";
+            }
+            prompt(nameToIndex, indexToName, adjList, valuesBetween);
+        }
+    } else if (option == 4) {
         exit(0);
     } else {
         cout << "\nError: Incorrect option\n";
-        prompt(nameToIndex, adjList, valuesBetween);
+        prompt(nameToIndex, indexToName, adjList, valuesBetween);
     }
 }
