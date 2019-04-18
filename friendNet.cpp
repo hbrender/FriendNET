@@ -16,6 +16,7 @@
 using namespace std;
 
 void prompt(map<string, int>, map<int, string>, vector<vector<int>>, vector<vector<int>>);
+void dijkstra(int userA, int userB, map<string, int>, map<int, string>, vector<vector<int>>, vector<vector<int>>);
 
 int main(){
     ifstream dataFile ("data.txt");
@@ -120,7 +121,8 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
             "1) Check if user exists\n" <<
             "2) Check connection between users\n"
             "3) Find fake friends\n"
-            "4) Quit\n";
+            "4) Best friend chain"
+            "5) Quit\n";
     cin >> option;
     
     if (option == 1) {
@@ -220,9 +222,24 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
             prompt(nameToIndex, indexToName, adjList, valuesBetween);
         }
     } else if (option == 4) {
+        int userA;
+        cout << "User A: ";
+        cin >> userA;
+        int userB;
+        cout << "User B: ";
+        cin >> userB;
+    
+        dijkstra(userA, userB, nameToIndex, indexToName, adjList, valuesBetween);
+    } else if (option == 5) {
         exit(0);
     } else {
         cout << "\nError: Incorrect option\n";
         prompt(nameToIndex, indexToName, adjList, valuesBetween);
     }
 }
+
+void dijkstra(int userA, int userB, map<string, int>, map<int, string>, vector<vector<int>>, vector<vector<int>>) {
+    
+}
+
+
