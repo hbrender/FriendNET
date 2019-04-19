@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <limits>
 
 using namespace std;
 
@@ -121,7 +122,7 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
             "1) Check if user exists\n" <<
             "2) Check connection between users\n"
             "3) Find fake friends\n"
-            "4) Best friend chain"
+            "4) Best friend chain\n"
             "5) Quit\n";
     cin >> option;
     
@@ -238,8 +239,72 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
     }
 }
 
-void dijkstra(int userA, int userB, map<string, int>, map<int, string>, vector<vector<int>>, vector<vector<int>>) {
-    
+void dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int, string> indexToName, vector<vector<int>> adjList, vector<vector<int>> valuesBetween) {
+    //turn all values negative to run algo easier
+    for (int i = 0; i < valuesBetween.size(); i++){
+        for (int j = 0; j < valuesBetween[i].size(); j++){
+            valuesBetween[i][j] = - (valuesBetween[i][j]);
+        }
+    }
+
+    //create list of all nodes
+    vector<int> listOfVerts; 
+    for(auto it: indexToName){
+	listOfVerts.push_back(it.first);
+    }
+
+    //create list of distances
+    vector<int> distances;
+    for( int i = 0; i < listOfVerts.size(); i++){
+	if (listOfVerts[i] == userA){
+	    distances.push_back(0);
+	}
+	else{
+	    distances.push_back(numeric_limits<int>::max());
+	}
+    }
+ 
+    //create previous node list
+    vector<int> previousVertex;
+    for(int i = 0; i < listOfVerts.size(); i++){
+        previousVertex.push_back(-1);
+    }
+
+    //start the algorithm
+    //
+    //
+    //
+    //
+    vector<int> unvisited = listOfVerts;
+    int visit_node;
+    int min;
+    while (not unvisited.empty()){
+	//find the node with the smallest known distance from the start node
+	min = distances.front();
+	visit_node = listOfVerts.front();
+	for( int i = 0; i < listOfVerts.size(); i++){
+	    if (distances[i] < min){
+                min = distances[i];
+		visit_node = listOfVerts[i];
+	    }
+        }
+
+
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
