@@ -17,7 +17,7 @@
 using namespace std;
 
 void prompt(map<string, int>, map<int, string>, vector<vector<int>>, vector<vector<int>>);
-void dijkstra(int userA, int userB, map<string, int>, map<int, string>, vector<vector<int>>, vector<vector<int>>);
+vector<int> dijkstra(int userA, int userB, map<string, int>, map<int, string>, vector<vector<int>>, vector<vector<int>>);
 
 int main(){
     ifstream dataFile ("data.txt");
@@ -230,7 +230,10 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
         cout << "User B: ";
         cin >> userB;
     
-        dijkstra(userA, userB, nameToIndex, indexToName, adjList, valuesBetween);
+        vector<int> bfList = dijkstra(userA, userB, nameToIndex, indexToName, adjList, valuesBetween);
+	for(int i =0; i < bfList.size(); i++){
+	    cout << bfList[i] << endl;
+	}
     } else if (option == 5) {
         exit(0);
     } else {
@@ -239,7 +242,7 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
     }
 }
 
-void dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int, string> indexToName, vector<vector<int>> adjList, vector<vector<int>> valuesBetween) {
+vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int, string> indexToName, vector<vector<int>> adjList, vector<vector<int>> valuesBetween) {
     //turn all values negative to run algo easier
     for (int i = 0; i < valuesBetween.size(); i++){
         for (int j = 0; j < valuesBetween[i].size(); j++){
@@ -260,7 +263,7 @@ void dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int, strin
 	    distances.push_back(0);
 	}
 	else{
-	    distances.push_back(numeric_limits<int>::max());
+	    distances.push_back(11);
 	}
     }
  
@@ -288,52 +291,85 @@ void dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int, strin
 
     vector<int> visited;
     visited.resize(listOfVerts.size());
+    int calculatedDistance;
 
     ///////////////////////
     //start the algorithm
     ///////////////////////
     while (not unvisited.empty()){
+	for (int i =0; i < unvisited.size(); i++){
+	    cout << unvisited[i] ;
+	}
+	cout << endl;
 	//find the node with the smallest known distance from the start node
 	min = distances.front();
-	visit_node = listOfVerts.front();
-	for( int i = 0; i < listOfVerts.size(); i++){
+	visit_node = unvisited.front();
+	for( int i = 0; i < unvisited.size(); i++){
 	    if (distances[i] < min){
                 min = distances[i];
-		visit_node = listOfVerts[i];
+		visit_node = unvisited[i];
 	    }
         }
 
 	//for the current vertex, examine its unvisited neighbors
-        for (int i = 0; i < adjList[min].size(); i++){
+        for (int i = 0; i < adjList[visit_node].size(); i++){
 	    hasBeenVisited = false;
 	    for (int i = 0; i < unvisited.size(); i++){
-		if (adjList[min][i] == visited[i]){
-		    hasBeenVisitied = true;
+		if (adjList[visit_node][i] == visited[i]){
+		    hasBeenVisited = true;
 		}
 	    }
 	    if (not hasBeenVisited){	
- 	    //for the current vertex, calculate distance of each neigbor from start vertex
+ 	        //for the current vertex, calculate distance of each neigbor from start vertex
+	    	calculatedDistance = 0;
 	        /***calc distance***/
+		calculatedDistance = distances[visit_node] + adjList[visit_node][i]; 
 	        
 	        //if the distance of a vertex is less than the known distance, update the shortest disance
-		if(distances[min][i] > calculatedDistance){
-		    distances[min][i] = calculatedDistance;
-		    previousVertex = min;
+		if(distances[adjList[visit_node][i]] > calculatedDistance){
+		    distances[adjList[visit_node][i]] = calculatedDistance;
+		    previousVertex[i] = visit_node;
 		}	
 
 	    }
+	}
 
-	}		
+        //if unvisited[visit_node] == userB then we have done as much as we need	
+	if (unvisited[visit_node] == userB){
+            //backtrack through the table to find the friend list
+	    vector<int> shortestPath;
+	    //push on the first vertex
+	    shortestPath.push_back(userB);
+	    //get total distance (just stored already)
+	    int totalDistance = distances[userB];
+	    //loop through until you're at the source
+	    int u = userB;
+	    while (u != userA){
+		shortestPath.push_back(previousVertex[u]);
+		u = previousVertex[u];
+	    }
+	    //printing a table to look like the one in video
+	    cout << "Vertex\tShortest Distance from userA\tprevious Vertex" << endl;
+	    for(int i = 0; i < previousVertex.size(); i++){
+		cout << indexToName[listOfVerts[i]] << "\t\t" << distances[i] << "\t\t\t" << previousVertex[i] << endl;
+	    }
+	    return shortestPath;
+
+	}
 	
 	//add the current vertex to the list of visited nodes and remove from unvisited
 	for(int i = 0; i < unvisited.size(); i++){
-	    if(unvisitied[i] == min){
+	    if(unvisited[i] == visit_node){
+		//TODO issue with unvisited and visited.  
+		cout << "here we are" << endl;
 		visited.push_back(unvisited[i]);
 		unvisited.erase(unvisited.begin() + i);
 	    }
 	}
 
     }
+
+
 
 }
 
