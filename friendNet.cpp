@@ -86,10 +86,10 @@ int main(){
         cout << "name: " << it.first << "\tindex->" <<  it.second << endl;
     }
     
-    // Names to index
+    // index to name
     cout << "\n\nIndex to Name Map" << endl << "------------------------------" << endl;
     for(auto it: indexToName){
-        cout << "name: " << it.first << "\tindex->" <<  it.second << endl;
+        cout << "index: " << it.first << "\tname->" <<  it.second << endl;
     }
     
     //current adjListaency list
@@ -270,14 +270,28 @@ void dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int, strin
         previousVertex.push_back(-1);
     }
 
-    //start the algorithm
-    //
-    //
-    //
-    //
+    //variables for dijkstra's
     vector<int> unvisited = listOfVerts;
     int visit_node;
     int min;
+    bool hasBeenVisited = false;
+
+    /* We have
+     * a vector -> previousVertex
+     * a vector -> distances
+     * a vector -> listOfVerts
+     * a vector -> valuesBetween (turned negative)
+     * a map -> nameToIndex
+     * a map -> indexToName
+     * a vector -> adjList
+     */
+
+    vector<int> visited;
+    visited.resize(listOfVerts.size());
+
+    ///////////////////////
+    //start the algorithm
+    ///////////////////////
     while (not unvisited.empty()){
 	//find the node with the smallest known distance from the start node
 	min = distances.front();
@@ -289,6 +303,35 @@ void dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int, strin
 	    }
         }
 
+	//for the current vertex, examine its unvisited neighbors
+        for (int i = 0; i < adjList[min].size(); i++){
+	    hasBeenVisited = false;
+	    for (int i = 0; i < unvisited.size(); i++){
+		if (adjList[min][i] == visited[i]){
+		    hasBeenVisitied = true;
+		}
+	    }
+	    if (not hasBeenVisited){	
+ 	    //for the current vertex, calculate distance of each neigbor from start vertex
+	        /***calc distance***/
+	        
+	        //if the distance of a vertex is less than the known distance, update the shortest disance
+		if(distances[min][i] > calculatedDistance){
+		    distances[min][i] = calculatedDistance;
+		    previousVertex = min;
+		}	
+
+	    }
+
+	}		
+	
+	//add the current vertex to the list of visited nodes and remove from unvisited
+	for(int i = 0; i < unvisited.size(); i++){
+	    if(unvisitied[i] == min){
+		visited.push_back(unvisited[i]);
+		unvisited.erase(unvisited.begin() + i);
+	    }
+	}
 
     }
 
