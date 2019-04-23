@@ -9,7 +9,7 @@ Dave James 7
 Peter Grace 5
 Peter Dave 2
 Peter Lisa 6
-Peter James 1
+Peter James 10
 Kyle Peter 9
 Kyle Sarah 3
 Kyle Lisa 8
