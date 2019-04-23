@@ -224,16 +224,30 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
         }
     } else if (option == 4) {
         string user;
+        int userB;
+        int userA;
         cout << "User A: ";
         cin >> user;
-        int userA = nameToIndex[user];
+        if (nameToIndex.find(user) == nameToIndex.end()) {
+            cout << "Error: " << user << " does not exist\n";
+            prompt(nameToIndex, indexToName, adjList, valuesBetween);
+        } else {
+            userA = nameToIndex[user];
+        }
+        
         cout << "User B: ";
         cin >> user;
-        int userB = nameToIndex[user];
+        
+        if (nameToIndex.find(user) == nameToIndex.end()) {
+            cout << "Error: " << user << " does not exist\n";
+            prompt(nameToIndex, indexToName, adjList, valuesBetween);
+        } else {
+            userB = nameToIndex[user];
+        }
         
         vector<int> bfList = dijkstra(userA, userB, nameToIndex, indexToName, adjList, valuesBetween);
-        for(int i =0; i < bfList.size(); i++){
-            cout << bfList[i] << endl;
+        for(int i = bfList.size()-1; i >= 0; i--){
+            cout << indexToName[bfList[i]] << endl;
         }
     } else if (option == 5) {
         exit(0);
@@ -305,7 +319,7 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
     //start the algorithm
     ///////////////////////
     int count = 0;
-    while (not unvisited.empty()){
+    while (not unvisited.empty() && count < 10){
         cout << "Unvisited: ";
         for (int i =0; i < unvisited.size(); i++){
             cout << unvisited[i] << " ";
@@ -319,12 +333,12 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
         cout << endl;
         
         //find the node with the smallest known distance from the start node
-        min = 40; // infinity
-        cout << min << endl;
-        visit_node = unvisited.front();
+        min = 11; // infinity
+        //visit_node = unvisited.front();
+        visit_node = userA;
         bool alreadyVisited = false;
         
-        for( int i = 0; i < listOfVerts.size(); i++){
+        for(int i = 0; i < listOfVerts.size(); i++){
             alreadyVisited = false;
             if (distances[i] < min){
                 for (int j = 0; j < visited.size(); j++) {
@@ -342,14 +356,17 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
         cout << "Visit node: " << visit_node << "\n";
         
         //for the current vertex, examine its unvisited neighbors
+        int count_unvisited = 0;
         for (int i = 0; i < adjList[visit_node].size(); i++){
             hasBeenVisited = false;
-            for (int i = 0; i < visited.size(); i++){
-                if (visit_node == visited[i]){
+            for (int j = 0; j < visited.size(); j++){
+                if (adjList[visit_node][i] == visited[j]){
                     hasBeenVisited = true;
                 }
             }
+            
             if (not hasBeenVisited){
+                count_unvisited++;
                 //for the current vertex, calculate distance of each neigbor from start vertex
                 calculatedDistance = 0;
                 /***calc distance***/
@@ -362,8 +379,12 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
                     distances[adjList[visit_node][i]] = calculatedDistance;
                     previousVertex[adjList[visit_node][i]] = visit_node;
                 }
-                
             }
+        }
+        // if no path exists (no other unvisited neighbors to examine)
+        if (count_unvisited == 0 && visit_node != userB) {
+            cout << "\nNo best friend path exists\n";
+            return shortestPath;
         }
         
         cout << "Distances: ";
@@ -380,7 +401,6 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
         
         //if unvisited[visit_node] == userB then we have done as much as we need
         if (visit_node == userB){
-            cout << "here\n\n\n";
             //backtrack through the table to find the friend list
             //vector<int> shortestPath;
             //push on the first vertex
@@ -392,13 +412,9 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
             int u = userB;
             int counter = 0;
             while (u != userA && counter < 10){
-                for (int k = 0; k < shortestPath.size(); k++) {
-                    // TO DO: i am not sure what is supposed to happen if it wants to revisit the node it has already been to...
-                    if (shortestPath[k] == u) {
-                        cout << "Error: no path exists" << endl;
-                        return shortestPath;
-                    }
-                }
+                cout << "U: " << u << endl;
+                cout << "userA: " << userA;
+                cout << endl;
                 shortestPath.push_back(previousVertex[u]);
                 u = previousVertex[u];
                 counter++;
@@ -409,7 +425,6 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
                 cout << indexToName[listOfVerts[i]] << "\t\t" << distances[i] << "\t\t\t" << previousVertex[i] << endl;
             }
             return shortestPath;
-            
         }
         
         //add the current vertex to the list of visited nodes and remove from unvisited
