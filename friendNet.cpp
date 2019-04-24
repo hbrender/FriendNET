@@ -2,7 +2,7 @@
 // CPSC 450: 01
 // FriendNET: Deliverable 1
 
-// Best friend chain algorithm: Prim's Algorithm
+// Best friend chain algorithm: Dijkstra’s Shortest Path Algorithm
 // Killer Features:
 //      1. Fake friend feature: Remove friends who rate you 4 points less than you rate them
 //      2. Delete person who is the least popular among other users
@@ -123,7 +123,8 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
     "2) Check connection between users\n"
     "3) Find fake friends\n"
     "4) Best friend chain\n"
-    "5) Quit\n";
+    "5) Rank user popularity\n"
+    "6) Quit\n";
     cin >> option;
     
     if (option == 1) {
@@ -250,6 +251,45 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
         }
         prompt(nameToIndex, indexToName, adjList, valuesBetween);
     } else if (option == 5) {
+        multimap<double, int> avgRatingToIndex; // use multimap so that I can sort on avgRating but also allow for same rating avg
+        //double minRatingAvg = numeric_limits<double>::max(); // infinity
+        int unpopularUser = 0;
+        int sumRatings;
+        int numRatings;
+        double avgRating;
+        
+        // for each user, total up ratings and find average rating
+        for (int i = 0; i < adjList.size(); i++) {
+            // reset
+            sumRatings = 0;
+            numRatings = 0;
+            for(int j = 0; j < adjList.size(); j++) {
+                for (int k =0; k < adjList[j].size(); k++) {
+                    if (i == adjList[j][k]) {
+                        numRatings++;
+                        sumRatings += valuesBetween[j][k];
+                    }
+                }
+            }
+            avgRating = (double)sumRatings/numRatings;
+            avgRatingToIndex.insert({avgRating, i});
+            
+            // update min rating avg
+            //if (avgRating < minRatingAvg) {
+            //    minRatingAvg = avgRating;
+            //    unpopularUser = i;
+            //}
+        }
+        cout << "\nLeast popular to most popular" << endl;
+        int count = 1;
+        for (auto x: avgRatingToIndex) {
+            cout << "   " << count << ". " << indexToName[x.second] << " (Average rating: " << x.first << ")" << endl;
+            count++;
+        }
+        //cout << "Most unpopular user: " << indexToName[unpopularUser] << endl;
+        //cout << "Average rating: " << minRatingAvg << endl << endl;
+        prompt(nameToIndex, indexToName, adjList, valuesBetween);
+    } else if (option == 6) {
         cout << "\nGoodbye\n";
         exit(0);
     } else {
@@ -307,6 +347,20 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
     //start the algorithm//
     ///////////////////////
     while (not unvisited.empty()){
+        /*cout << "Unvisited: ";
+        for (int i =0; i < unvisited.size(); i++){
+            cout << unvisited[i] << " ";
+        }
+        
+        //for the current vertex, examine its unvisited neighbors
+        cout << endl;
+        
+        cout << "Visited: ";
+        for (int i =0; i < visited.size(); i++){
+            cout << visited[i] << " ";
+        }
+        cout << endl;*/
+        
         //find the node with the smallest known distance from the start node
         min = 11; // "infinity"
         bool alreadyVisited = false;
@@ -332,6 +386,8 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
                 }
             }
         }
+        //cout << "Min distance: " << min << "\n";
+        //cout << "Visit node: " << visit_node << "\n";
         
         //for the current vertex, examine its unvisited neighbors
         for (int i = 0; i < adjList[visit_node].size(); i++){
@@ -347,6 +403,7 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
                 /***calc distance***/
                 // multiply by -1 to convert from largest path to shortest path
                 calculatedDistance = distances[visit_node] + (valuesBetween[visit_node][i] * -1);
+                //calculatedDistance = distances[visit_node] + (10-valuesBetween[visit_node][i]);
                 
                 //if the distance of a vertex is less than the known distance, update the shortest disance
                 if(distances[adjList[visit_node][i]] > calculatedDistance){
@@ -355,6 +412,18 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
                 }
             }
         }
+        /*
+        cout << "Distances: ";
+        for (int i = 0; i < distances.size(); i++) {
+            cout << distances[i] << " ";
+        }
+        cout << endl;
+        
+        cout << "Previous vertex: ";
+        for (int i = 0; i < previousVertex.size(); i++) {
+            cout << previousVertex[i] << " ";
+        }
+        cout << endl;*/
         
         //add the current vertex to the list of visited nodes and remove from unvisited
         for(int i = 0; i < unvisited.size(); i++){
@@ -385,3 +454,5 @@ vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int
     
     return shortestPath;
 }
+
+
