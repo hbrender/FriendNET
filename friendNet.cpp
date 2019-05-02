@@ -220,35 +220,35 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
         prompt(nameToIndex, indexToName, adjList, valuesBetween);
     } else if (option == 5) {
         multimap<double, int> avgRatingToIndex; // use multimap so that I can sort on avgRating but also allow for same rating avg
+        map<int,int> indexToNumRatings;
+        map<int,int> indexToSumRatings;
         int unpopularUser = 0;
         int sumRatings;
         int numRatings;
         double avgRating;
         
-        // for each user, total up ratings and find average rating
-        for (int i = 0; i < adjList.size(); i++) {
-            // reset
-            sumRatings = 0;
-            numRatings = 0;
-            for(int j = 0; j < adjList.size(); j++) {
-                for (int k =0; k < adjList[j].size(); k++) {
-                    if (i == adjList[j][k]) {
-                        numRatings++;
-                        sumRatings += valuesBetween[j][k];
-                    }
-                }
+        // go through each node in adjacency list and keep track of total number of ratings and
+        // sum of ratings for each user
+        for (int j = 0; j < adjList.size(); j++) {
+            for (int k = 0; k < adjList[j].size(); k++) {
+                indexToNumRatings[adjList[j][k]] += 1;
+                indexToSumRatings[adjList[j][k]] += valuesBetween[j][k];
             }
-            avgRating = (double)sumRatings/numRatings;
+        }
+        
+        // calculate average rating for each user and store in multimap
+        for (int i = 0; i < adjList.size(); i++) {
+            avgRating = (double)indexToSumRatings[i]/indexToNumRatings[i];
             avgRatingToIndex.insert({avgRating, i});
         }
+        
+        // display users and their average ratings (from least to most)
         cout << "\nLeast popular to most popular" << endl;
         int count = 1;
         for (auto x: avgRatingToIndex) {
             cout << "   " << count << ". " << indexToName[x.second] << " (Average rating: " << x.first << ")" << endl;
             count++;
         }
-        //cout << "Most unpopular user: " << indexToName[unpopularUser] << endl;
-        //cout << "Average rating: " << minRatingAvg << endl << endl;
         prompt(nameToIndex, indexToName, adjList, valuesBetween);
     } else if (option == 6) {
         cout << "\nGoodbye\n";
@@ -259,6 +259,7 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
     }
 }
 
+// Dijkstra's shortest path algorithm (used for best friend chain)
 vector<int> dijkstra(int userA, int userB, map<string, int> nameToIndex, map<int, string> indexToName, vector<vector<int>> adjList, vector<vector<int>> valuesBetween) {
     //create list of all nodes
     vector<int> listOfVerts;
