@@ -220,11 +220,8 @@ void prompt(map<string, int> nameToIndex, map<int, string> indexToName, vector<v
         prompt(nameToIndex, indexToName, adjList, valuesBetween);
     } else if (option == 5) {
         multimap<double, int> avgRatingToIndex; // use multimap so that I can sort on avgRating but also allow for same rating avg
-        map<int,int> indexToNumRatings;
-        map<int,int> indexToSumRatings;
-        int unpopularUser = 0;
-        int sumRatings;
-        int numRatings;
+        map<int,int> indexToNumRatings; // map from user index to total number of ratings made about them
+        map<int,int> indexToSumRatings; // map from user index to sum of all ratings made about them
         double avgRating;
         
         // go through each node in adjacency list and keep track of total number of ratings and
